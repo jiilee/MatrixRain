@@ -54,7 +54,7 @@
         let rssColumnTexts = []; // Store the actual text for each RSS column
         let rssColumnTextIndices = []; // Track current character position in text
 
-        const fontSize = 14;
+        const fontSize = 12;
         let columns = Math.floor(canvas.width / fontSize);
 
         // Array to track the y position of each column
@@ -93,7 +93,7 @@
             rssColumns = [];
             rssColumnDrops = [];
 
-            for (let i = 0; i < columns; i += 8) {
+            for (let i = 0; i < columns; i += 5) {
                 rssColumns.push(i);
                 rssColumnDrops[i] = Math.random() * canvas.height;
             }
@@ -218,11 +218,11 @@
         // Initialize RSS feeds and start animation
         loadRSSFeeds().then(() => {
             console.log('RSS feeds loaded, starting animation...');
-            setInterval(draw, 50);
+            setInterval(draw, 80);
         }).catch(error => {
             console.warn('Failed to load RSS feeds, using traditional matrix characters only:', error.message);
             // Fallback to traditional animation if RSS fails
-            setInterval(draw, 50);
+            setInterval(draw, 80);
         });
 
         // Add some interactivity

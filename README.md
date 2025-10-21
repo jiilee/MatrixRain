@@ -32,12 +32,18 @@ A mesmerizing recreation of the iconic "Matrix" digital rain effect using HTML5 
 - **Browser**: Go to `http://localhost:5000`
 
 ## Server Architecture
-The application uses a **Flask backend server** to solve CORS issues when fetching RSS feeds:
+The application uses a **Flask backend server** with intelligent caching for optimal performance:
 
 - **Frontend**: HTML5 Canvas application with Matrix rain animation
 - **Backend**: Flask server that fetches RSS feeds server-side and serves them as JSON
 - **RSS Feeds**: 100+ RSS feeds from news, technology, sports, and lifestyle sources
+- **In-Memory Caching**: RSS content cached for 5 minutes for instant UI refreshes
 - **No CORS Issues**: All RSS fetching happens server-side, eliminating browser CORS restrictions
+
+### API Endpoints
+- **`GET /api/rss`** - Get RSS content (uses caching for performance)
+- **`GET /api/cache/status`** - Check cache status and age
+- **`GET /api/cache/clear`** - Clear RSS cache (for debugging)
 
 ## Usage
 Simply open `index.html` in any modern web browser. The animation will start automatically.
