@@ -42,26 +42,156 @@
         const canvas = document.getElementById('matrixCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Matrix characters - mix of Latin and Japanese Katakana
+        const matrixChars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        // RSS feed content storage
+        let rssContent = [];
+        let rssFeeds = [
+            'https://rss.cnn.com/rss/edition.rss',
+            'https://feeds.bbci.co.uk/news/rss.xml',
+            'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+            'https://feeds.reuters.com/reuters/topNews',
+            'https://techcrunch.com/feed/',
+            'https://www.theverge.com/rss/index.xml',
+            'https://www.wired.com/feed/rss',
+            'https://arstechnica.com/feed/',
+            'https://www.reddit.com/r/technology/.rss',
+            'https://www.reddit.com/r/worldnews/.rss'
+        ];
+
+        // RSS column management
+        let rssColumns = [];
+        let rssColumnDrops = [];
+        let rssColumnTexts = []; // Store the actual text for each RSS column
+        let rssColumnTextIndices = []; // Track current character position in text
+
+        const fontSize = 14;
+        let columns = Math.floor(canvas.width / fontSize);
+
+        // Array to track the y position of each column
+        let drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height;
+        }
+
         // Set canvas size
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+
+            // Recalculate columns and reinitialize RSS columns when window resizes
+            const newColumns = Math.floor(canvas.width / fontSize);
+            if (newColumns !== columns) {
+                // Update columns count
+                columns = newColumns;
+
+                // Reinitialize drops array
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.random() * canvas.height;
+                }
+
+                // Reinitialize RSS columns
+                initializeRSSColumns();
+            }
         }
 
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Matrix characters - mix of Latin and Japanese Katakana
-        const matrixChars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        // Initialize RSS columns (every 8th column becomes an RSS column)
+        function initializeRSSColumns() {
+            rssColumns = [];
+            rssColumnDrops = [];
 
-        const fontSize = 14;
-        const columns = Math.floor(canvas.width / fontSize);
-
-        // Array to track the y position of each column
-        const drops = [];
-        for (let i = 0; i < columns; i++) {
-            drops[i] = Math.random() * canvas.height;
+            for (let i = 0; i < columns; i += 8) {
+                rssColumns.push(i);
+                rssColumnDrops[i] = Math.random() * canvas.height;
+            }
         }
+
+        initializeRSSColumns();
+
+        // RSS Feed functionality
+        function fetchRSSFeed(url) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            resolve(xhr.responseText);
+                        } else {
+                            reject(new Error(`Failed to fetch ${url}: ${xhr.status}`));
+                        }
+                    }
+                };
+                xhr.send();
+            });
+        }
+
+        function parseRSSContent(xmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            const items = xmlDoc.querySelectorAll('item');
+            const content = [];
+
+            items.forEach(item => {
+                const title = item.querySelector('title')?.textContent || '';
+                const description = item.querySelector('description')?.textContent || '';
+
+                // Store complete titles and descriptions, not individual words
+                if (title.trim()) {
+                    content.push(title.trim().toUpperCase());
+                }
+                if (description.trim()) {
+                    content.push(description.trim().toUpperCase());
+                }
+            });
+
+            return content;
+        }
+
+        async function loadRSSFeeds() {
+            console.log('Loading RSS feeds...');
+
+            for (const feedUrl of rssFeeds) {
+                try {
+                    const rssText = await fetchRSSFeed(feedUrl);
+                    const texts = parseRSSContent(rssText);
+
+                    // Add complete texts to rssContent
+                    texts.forEach(text => {
+                        if (text.length > 0 && text.length <= 200) { // Limit text length for performance
+                            rssContent.push(text);
+                        }
+                    });
+
+                    console.log(`Loaded ${texts.length} texts from ${feedUrl}`);
+                } catch (error) {
+                    console.warn(`Failed to load RSS feed ${feedUrl}:`, error.message);
+                }
+            }
+
+            console.log(`Total RSS content loaded: ${rssContent.length} texts`);
+
+            // Assign RSS texts to columns after loading
+            assignRSSTextsToColumns();
+        }
+
+        function assignRSSTextsToColumns() {
+            if (rssContent.length === 0) return;
+
+            rssColumns.forEach((columnIndex, arrayIndex) => {
+                if (arrayIndex < rssContent.length) {
+                    rssColumnTexts[columnIndex] = rssContent[arrayIndex];
+                    rssColumnTextIndices[columnIndex] = 0; // Start from beginning of text
+                }
+            });
+        }
+
+
 
         function draw() {
             // Create trailing effect by filling with semi-transparent black
@@ -72,12 +202,15 @@
             ctx.fillStyle = '#00ff00';
             ctx.font = `${fontSize}px 'Courier New', monospace`;
 
-            // Draw the characters
+            // Draw traditional Matrix characters for non-RSS columns
             for (let i = 0; i < drops.length; i++) {
-                // Pick random character
+                // Skip RSS columns (they're handled separately below)
+                if (rssColumns.includes(i)) {
+                    continue;
+                }
+
+                // Draw traditional Matrix character
                 const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
-                
-                // Draw character with random opacity for fading effect
                 ctx.fillStyle = `rgba(0, 255, 0, ${Math.random()})`;
                 ctx.fillText(char, i * fontSize, drops[i]);
 
@@ -89,17 +222,78 @@
                     drops[i] = 0;
                 }
             }
+
+            // Draw RSS content for designated RSS columns (one character at a time)
+            rssColumns.forEach(columnIndex => {
+                const text = rssColumnTexts[columnIndex];
+                if (text && text.length > 0) {
+                    // Get current character position for this column
+                    let textIndex = rssColumnTextIndices[columnIndex] || 0;
+
+                    // Get the current character from the text
+                    const char = text.charAt(textIndex);
+
+                    if (char) {
+                        // Calculate fade-out effect for RSS characters (stay longer)
+                        const dropPosition = rssColumnDrops[columnIndex];
+                        let opacity = 1.0;
+
+                        // Fade out over the last 200px of fall distance
+                        if (dropPosition > canvas.height - 200) {
+                            opacity = (canvas.height - dropPosition) / 200;
+                        }
+
+                        // Draw RSS character in deep red with fade effect
+                        ctx.fillStyle = `rgba(139, 0, 0, ${opacity})`; // Deep red color
+                        ctx.fillText(char, columnIndex * fontSize, dropPosition);
+
+                        // Advance to next character
+                        textIndex++;
+
+                        // If we've reached the end of the text, reset to beginning
+                        if (textIndex >= text.length) {
+                            textIndex = 0;
+                        }
+
+                        // Store the updated text index
+                        rssColumnTextIndices[columnIndex] = textIndex;
+                    }
+
+                    // Move RSS drop down (same speed as regular drops)
+                    rssColumnDrops[columnIndex] += fontSize;
+
+                    // Reset RSS drop to top when it reaches bottom
+                    if (rssColumnDrops[columnIndex] > canvas.height) {
+                        rssColumnDrops[columnIndex] = 0;
+                    }
+                }
+            });
         }
 
-        // Animation loop
-        setInterval(draw, 50);
+        // Initialize RSS feeds and start animation
+        loadRSSFeeds().then(() => {
+            console.log('RSS feeds loaded, starting animation...');
+            setInterval(draw, 50);
+        }).catch(error => {
+            console.warn('Failed to load RSS feeds, using traditional matrix characters only:', error.message);
+            // Fallback to traditional animation if RSS fails
+            setInterval(draw, 50);
+        });
 
         // Add some interactivity
         document.addEventListener('click', function() {
-            // Reset all drops when clicked
+            // Reset all traditional drops when clicked
             for (let i = 0; i < drops.length; i++) {
                 drops[i] = Math.random() * canvas.height;
             }
+
+            // Reset all RSS column drops and text indices when clicked
+            rssColumns.forEach(columnIndex => {
+                rssColumnDrops[columnIndex] = Math.random() * canvas.height;
+                if (rssColumnTextIndices[columnIndex] !== undefined) {
+                    rssColumnTextIndices[columnIndex] = 0; // Reset to beginning of text
+                }
+            });
         });
     </script>
 </body>
