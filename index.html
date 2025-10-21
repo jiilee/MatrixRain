@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Rain</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        canvas {
+            display: block;
+            background: #000000;
+        }
+
+        .matrix-char {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .fade {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Matrix characters - mix of Latin and Japanese Katakana
+        const matrixChars = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
+
+        // Array to track the y position of each column
+        const drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height;
+        }
+
+        function draw() {
+            // Create trailing effect by filling with semi-transparent black
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Set text properties
+            ctx.fillStyle = '#00ff00';
+            ctx.font = `${fontSize}px 'Courier New', monospace`;
+
+            // Draw the characters
+            for (let i = 0; i < drops.length; i++) {
+                // Pick random character
+                const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                
+                // Draw character with random opacity for fading effect
+                ctx.fillStyle = `rgba(0, 255, 0, ${Math.random()})`;
+                ctx.fillText(char, i * fontSize, drops[i]);
+
+                // Move drop down
+                drops[i] += fontSize;
+
+                // Reset drop to top when it reaches bottom
+                if (drops[i] > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+            }
+        }
+
+        // Animation loop
+        setInterval(draw, 50);
+
+        // Add some interactivity
+        document.addEventListener('click', function() {
+            // Reset all drops when clicked
+            for (let i = 0; i < drops.length; i++) {
+                drops[i] = Math.random() * canvas.height;
+            }
+        });
+    </script>
+</body>
+</html>
