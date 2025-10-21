@@ -20,25 +20,24 @@ A mesmerizing recreation of the iconic "Matrix" digital rain effect using HTML5 
    git clone https://github.com/jiilee/MatrixRain.git
    ```
 
-2. **For Windows users**: Double-click `run.bat` to start the server, or open `index.html` directly in your browser
+2. **Install Python dependencies** (Flask and RSS processing libraries)
 
-3. **For Linux/Mac users**: Run `./run.sh` to start the server, or open `index.html` directly in your browser
+3. **For Windows users**: Double-click `run.bat` to install dependencies and start the server
 
-4. **Alternative server options** (if Python/Node.js is installed):
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   # or
-   python3 -m http.server 8000
-
-   # Using Node.js (if installed)
-   npx serve .
-   ```
+4. **For Linux/Mac users**: Run `./run.sh` in terminal to install dependencies and start the server
 
 ## Quick Start
 - **Windows**: Double-click `run.bat`
 - **Linux/Mac**: Run `./run.sh` in terminal
-- **Browser**: Go to `http://localhost:8000`
+- **Browser**: Go to `http://localhost:5000`
+
+## Server Architecture
+The application uses a **Flask backend server** to solve CORS issues when fetching RSS feeds:
+
+- **Frontend**: HTML5 Canvas application with Matrix rain animation
+- **Backend**: Flask server that fetches RSS feeds server-side and serves them as JSON
+- **RSS Feeds**: 100+ RSS feeds from news, technology, sports, and lifestyle sources
+- **No CORS Issues**: All RSS fetching happens server-side, eliminating browser CORS restrictions
 
 ## Usage
 Simply open `index.html` in any modern web browser. The animation will start automatically.
@@ -102,10 +101,13 @@ let rssFeeds = [
 ```
 MatrixRain/
 ├── index.html      # Main HTML file with embedded CSS and JavaScript
+├── app.py          # Flask backend server (RSS proxy)
+├── requirements.txt # Python dependencies for Flask server
+├── rss_feeds.json  # RSS feed URLs configuration
 ├── README.md       # This file
 ├── octos.json      # Project configuration
-├── run.bat         # Windows batch file to launch Python server
-├── run.sh          # Unix shell script to launch Python server
+├── run.bat         # Windows launcher (installs deps + starts Flask)
+├── run.sh          # Unix/Linux launcher (installs deps + starts Flask)
 ├── AGENTS.md       # Safety documentation
 ├── CLAUDE.md       # Safety documentation
 └── CLINE.md        # Safety documentation

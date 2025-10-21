@@ -1,8 +1,12 @@
 #!/bin/bash
-echo "Starting MatrixRain server..."
+echo "Starting MatrixRain Flask server..."
 echo ""
-echo "The Matrix Rain application will be available at: http://localhost:8000"
+echo "Installing Python dependencies..."
+pip3 install -r requirements.txt
+echo ""
+echo "The Matrix Rain application will be available at: http://localhost:5000"
+echo "RSS API available at: http://localhost:5000/api/rss"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo ""
-python3 -m http.server 8000
+python3 app.py

@@ -47,18 +47,6 @@
 
         // RSS feed content storage
         let rssContent = [];
-        let rssFeeds = [
-            'https://rss.cnn.com/rss/edition.rss',
-            'https://feeds.bbci.co.uk/news/rss.xml',
-            'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
-            'https://feeds.reuters.com/reuters/topNews',
-            'https://techcrunch.com/feed/',
-            'https://www.theverge.com/rss/index.xml',
-            'https://www.wired.com/feed/rss',
-            'https://arstechnica.com/feed/',
-            'https://www.reddit.com/r/technology/.rss',
-            'https://www.reddit.com/r/worldnews/.rss'
-        ];
 
         // RSS column management
         let rssColumns = [];
@@ -113,71 +101,28 @@
 
         initializeRSSColumns();
 
-        // RSS Feed functionality
-        function fetchRSSFeed(url) {
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url, true);
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            resolve(xhr.responseText);
-                        } else {
-                            reject(new Error(`Failed to fetch ${url}: ${xhr.status}`));
-                        }
-                    }
-                };
-                xhr.send();
-            });
-        }
-
-        function parseRSSContent(xmlText) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-            const items = xmlDoc.querySelectorAll('item');
-            const content = [];
-
-            items.forEach(item => {
-                const title = item.querySelector('title')?.textContent || '';
-                const description = item.querySelector('description')?.textContent || '';
-
-                // Store complete titles and descriptions, not individual words
-                if (title.trim()) {
-                    content.push(title.trim().toUpperCase());
-                }
-                if (description.trim()) {
-                    content.push(description.trim().toUpperCase());
-                }
-            });
-
-            return content;
-        }
-
+        // RSS Feed functionality - now fetches from Flask backend
         async function loadRSSFeeds() {
-            console.log('Loading RSS feeds...');
+            try {
+                console.log('Loading RSS feeds from backend...');
 
-            for (const feedUrl of rssFeeds) {
-                try {
-                    const rssText = await fetchRSSFeed(feedUrl);
-                    const texts = parseRSSContent(rssText);
-
-                    // Add complete texts to rssContent
-                    texts.forEach(text => {
-                        if (text.length > 0 && text.length <= 200) { // Limit text length for performance
-                            rssContent.push(text);
-                        }
-                    });
-
-                    console.log(`Loaded ${texts.length} texts from ${feedUrl}`);
-                } catch (error) {
-                    console.warn(`Failed to load RSS feed ${feedUrl}:`, error.message);
+                const response = await fetch('/api/rss');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
+
+                const data = await response.json();
+                rssContent = data.texts || [];
+
+                console.log(`Loaded ${rssContent.length} RSS texts from backend`);
+
+                // Assign RSS texts to columns after loading
+                assignRSSTextsToColumns();
+
+            } catch (error) {
+                console.warn('Failed to load RSS feeds from backend:', error.message);
+                console.log('Using traditional Matrix characters only');
             }
-
-            console.log(`Total RSS content loaded: ${rssContent.length} texts`);
-
-            // Assign RSS texts to columns after loading
-            assignRSSTextsToColumns();
         }
 
         function assignRSSTextsToColumns() {
