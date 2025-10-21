@@ -20,14 +20,25 @@ A mesmerizing recreation of the iconic "Matrix" digital rain effect using HTML5 
    git clone https://github.com/jiilee/MatrixRain.git
    ```
 
-2. Open `index.html` in your web browser or serve it using a local server:
+2. **For Windows users**: Double-click `run.bat` to start the server, or open `index.html` directly in your browser
+
+3. **For Linux/Mac users**: Run `./run.sh` to start the server, or open `index.html` directly in your browser
+
+4. **Alternative server options** (if Python/Node.js is installed):
    ```bash
-   # Using Python (if installed)
+   # Using Python
    python -m http.server 8000
+   # or
+   python3 -m http.server 8000
 
    # Using Node.js (if installed)
    npx serve .
    ```
+
+## Quick Start
+- **Windows**: Double-click `run.bat`
+- **Linux/Mac**: Run `./run.sh` in terminal
+- **Browser**: Go to `http://localhost:8000`
 
 ## Usage
 Simply open `index.html` in any modern web browser. The animation will start automatically.
@@ -92,7 +103,12 @@ let rssFeeds = [
 MatrixRain/
 ├── index.html      # Main HTML file with embedded CSS and JavaScript
 ├── README.md       # This file
-└── octos.json      # Project configuration
+├── octos.json      # Project configuration
+├── run.bat         # Windows batch file to launch Python server
+├── run.sh          # Unix shell script to launch Python server
+├── AGENTS.md       # Safety documentation
+├── CLAUDE.md       # Safety documentation
+└── CLINE.md        # Safety documentation
 ```
 
 ## License
