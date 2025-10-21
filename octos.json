@@ -1,5 +1,10 @@
 {
   "name": "Matrix Rain",
-  "description": "Classic Matrix-style falling characters animation",
-  "entry": "index.html"
+  "description": "Classic Matrix-style falling characters animation with RSS feed integration",
+  "entry": "index.html",
+  "static": true,
+  "build": {
+    "command": "echo 'Static HTML application - no build required'",
+    "output": "."
+  }
 }

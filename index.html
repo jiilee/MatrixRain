@@ -101,12 +101,13 @@
 
         initializeRSSColumns();
 
-        // RSS Feed functionality - now fetches from Flask backend
+        // RSS Feed functionality - fetches from local Flask backend
         async function loadRSSFeeds() {
             try {
-                console.log('Loading RSS feeds from backend...');
+                console.log('Loading RSS feeds from local backend...');
 
-                const response = await fetch('/api/rss');
+                // Try to fetch from local Flask backend first
+                const response = await fetch('http://localhost:5000/api/rss');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -121,7 +122,8 @@
 
             } catch (error) {
                 console.warn('Failed to load RSS feeds from backend:', error.message);
-                console.log('Using traditional Matrix characters only');
+                console.log('Backend not available - using traditional Matrix characters only');
+                console.log('To enable RSS feeds, start the Flask backend with: python app.py');
             }
         }
 

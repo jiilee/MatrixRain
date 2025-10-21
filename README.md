@@ -15,6 +15,8 @@ A mesmerizing recreation of the iconic "Matrix" digital rain effect using HTML5 
 - **Customizable**: Easy to modify colors, speed, character sets, and RSS feed sources
 
 ## Installation
+
+### Option 1: Local Development (Full Features)
 1. Clone the repository:
    ```bash
    git clone https://github.com/jiilee/MatrixRain.git
@@ -26,10 +28,19 @@ A mesmerizing recreation of the iconic "Matrix" digital rain effect using HTML5 
 
 4. **For Linux/Mac users**: Run `./run.sh` in terminal to install dependencies and start the server
 
-## Quick Start
-- **Windows**: Double-click `run.bat`
-- **Linux/Mac**: Run `./run.sh` in terminal
-- **Browser**: Go to `http://localhost:5000`
+5. **Access**: Go to `http://localhost:5000` (includes RSS feeds and caching)
+
+### Option 2: Octos Deployment (Static + Backend)
+1. **Deploy static files to Octos** (index.html, CSS, JS only)
+2. **Run Flask backend locally** with `python app.py` or `./run.sh`
+3. **Configure frontend** to connect to `http://localhost:5000/api/rss`
+4. **Access**: Octos URL for UI, local backend for RSS functionality
+
+### Octos Deployment Notes
+- **Static Files Only**: Deploy `index.html` and related assets to Octos
+- **Backend Separate**: Run Flask backend locally for RSS functionality
+- **Hybrid Approach**: Combines Octos reliability with local RSS processing
+- **Configuration**: Frontend automatically connects to `localhost:5000` for RSS data
 
 ## Server Architecture
 The application uses a **Flask backend server** with intelligent caching for optimal performance:
